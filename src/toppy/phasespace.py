@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 import matplotlib as mpl
 from matplotlib import colors
 
@@ -47,7 +46,6 @@ def custom_pairplot(df, variables):
         for j in range(3):
             if i != j:
                 variable_tuples.append([variables[i],variables[j]])
-    print(variable_tuples)
 
     nbins = 40
     histbins = np.linspace(-1, 1, nbins)
@@ -77,7 +75,6 @@ def custom_pairplot(df, variables):
 
     # norm = mpl.colors.LogNorm(vmin=vmin, vmax=vmax)
     norm = colors.Normalize(vmin=vmin, vmax=vmax)
-    print(norm.vmin, norm.vmax)
 
     for i, offdiag in enumerate(offdiags):
         pcm = plot_hist_2d(axd[offdiag], histograms[i], norm)
@@ -95,7 +92,6 @@ if __name__=='__main__':
     phsp_file = '/Users/isaacmeyer/research/sarrp/SARRP_topas/4DHead/ASCIIOutput.phsp'
     phsp_obj = PhaseSpace(DataLoaders.Load_TopasData(phsp_file))
     phsp_obj.fill.direction_cosines()
-    print(phsp_obj.ps_data.columns)
 
     cosine_names = ['Direction Cosine X', 
                     'Direction Cosine Y',
@@ -106,21 +102,4 @@ if __name__=='__main__':
     df = phsp_obj.ps_data
     df = df[df['particle type [pdg_code]'] == 22]
     custom_pairplot(df, cosine_names)
-
-
-    print(df)
-
-    df = df[cosine_names]
-    pg = sns.PairGrid(df)
-    pg.map_diag(sns.histplot)
-    pg.map_upper(sns.histplot)
     plt.show()
-
-    
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.
-
-    
-    
-
