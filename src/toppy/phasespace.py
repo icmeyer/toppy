@@ -154,5 +154,4 @@ def plot_dists(phsp_file, figdir):
 
 
 if __name__=='__main__':
-    phsp_file = '/Users/isaacmeyer/research/sarrp/SARRP_topas/4DHead/ASCIIOutput.phsp'
     plot_dists(phsp_file, 'tests/')
