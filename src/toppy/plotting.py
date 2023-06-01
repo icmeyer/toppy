@@ -18,6 +18,10 @@ def bin_enlarge(array, n):
 def hist_y(y):
     return np.hstack([y[0], y])
 
+def lower_limits_to_edges(x):
+    dx = x[-1] - x[-2]
+    return np.hstack([x, x[-1] + dx])
+
 def compute_profile(data, axis, zlocation, shape, voxelwidths, profilewidth,
                     profilesmooth=1):
     """
@@ -150,8 +154,6 @@ def plot_dvh(vol_hist_file):
     ax.step(data['LowerLimit of DoseToMedium ( Gy )'], data['Value'])
     # ax.set_xscale('log')
     plt.show()
-
-
 
 
 if __name__=='__main__':
