@@ -4,7 +4,7 @@ from matplotlib import colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import copy
 
-import tallies
+from .tallies import import_csv
 
 def bin_enlarge(array, n):
     if len(array) % n : 
@@ -30,11 +30,11 @@ def compute_profile(data, axis, zlocation, shape, voxelwidths, profilewidth,
     profilewidth: thickness of line (how many voxels to include) [cm]
     """
     data = copy.deepcopy(data)
-    tallies = ['Sum', 'Variance', 'Count_in_Bin']
+    tally_names = ['Sum', 'Variance', 'Count_in_Bin']
 
     # Find z index
     z_idx = int(zlocation/voxelwidths[2])
-    for tally in tallies:
+    for tally in tally_names:
         print(tally, data[tally].shape)
         data[tally] = data[tally][:,:,z_idx]
 
@@ -45,14 +45,14 @@ def compute_profile(data, axis, zlocation, shape, voxelwidths, profilewidth,
     print('Using a profile width of {:d} voxels'.format(nvoxels_eachside))
     print('Indexes: '.format(index_low, index_high))
     if axis==0:
-        for tally in tallies:
+        for tally in tally_names:
             data[tally] = np.sum(data[tally][:, index_low:index_high], axis=1)
     elif axis==1:
-        for tally in tallies:
+        for tally in tally_names:
             data[tally] = np.sum(data[tally][index_low:index_high, :], axis=0)
     total_histories = 1e6
     if profilesmooth>1:
-        for tally in tallies:
+        for tally in tally_names:
             data[tally] = bin_enlarge(data[tally], profilesmooth)
 
     data['sum_SD'] = np.sqrt(data['Variance'] * total_histories)
@@ -141,7 +141,7 @@ def plot_dose_profiles(data, depths):
     ax.set_title('X-Axis Dose Profile at Varying Depths')
 
 def plot_dvh(vol_hist_file):
-    data = tallies.import_csv(vol_hist_file, tallytype='DVH')
+    data = import_csv(vol_hist_file, tallytype='DVH')
     print(data)
 
     fig = plt.figure()
@@ -155,28 +155,28 @@ def plot_dvh(vol_hist_file):
 
 
 if __name__=='__main__':
-    # data = tallies.import_csv('DoseAtPhantom.csv', ['X', 'Y', 'Z'])
+    # data = import_csv('DoseAtPhantom.csv', ['X', 'Y', 'Z'])
     # csv = '/Users/isaacmeyer/research/secondary_risk/merging_APE_with_MCAUTO/Liver_edit/liver_mcauto/exec/Beam1/merging_beams/phantom_dose_3beam.csv'
     # csv = '/Users/isaacmeyer/research/secondary_risk/merging_APE_with_MCAUTO/Liver_edit/liver_mcauto/exec/Beam1/merging_beams/Beam1.csv'
-    # csv = '/Users/isaacmeyer/research/secondary_risk/merging_APE_with_MCAUTO/Liver_edit/liver_mcauto/exec/Beam1/merging_beams/phantom_dose_all.csv'
+    csv = '/Users/isaacmeyer/research/secondary_risk/merging_APE_with_MCAUTO/Liver_edit/liver_mcauto/exec/Beam1/merging_beams/phantom_dose_all.csv'
 
-    # data = tallies.import_csv(csv, tallytype='dose', dimensions=['X', 'Y', 'Z'])
-    # nx = 160
-    # ny = 160
-    # nz = 70
-    # total_histories = 1e6
+    data = import_csv(csv, tallytype='dose', dimensions=['X', 'Y', 'Z'])
+    nx = 160
+    ny = 160
+    nz = 70
+    total_histories = 1e6
 
-    # plot_integrated_profiles(data, nx, ny, nz, total_histories, variance=False)
-    # plt.show()
+    plot_integrated_profiles(data, nx, ny, nz, total_histories, variance=False)
+    plt.show()
 
-    # depths = np.array([0.18, 5.55, 10.91, 16.28, 21.64, 32, 42.37, 52.73])
-    # depths *= 0.1 # convert to cm
-    # plot_dose_profiles(data, depths)
-    # plt.show()
+    depths = np.array([0.18, 5.55, 10.91, 16.28, 21.64, 32, 42.37, 52.73])
+    depths *= 0.1 # convert to cm
+    plot_dose_profiles(data, depths)
+    plt.show()
 
     # file = '/Users/isaacmeyer/research/secondary_risk/dvh_example/DoseAtPhantom_VolHist.csv'
-    file = '/Users/isaacmeyer/research/secondary_risk/dvh_example/ExampleDose_VolHist.csv'
-    plot_dvh(file)
+    # file = '/Users/isaacmeyer/research/secondary_risk/dvh_example/ExampleDose_VolHist.csv'
+    # plot_dvh(file)
 
         
 
