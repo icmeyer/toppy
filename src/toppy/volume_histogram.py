@@ -3,18 +3,21 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-from .tallies import import_csv
-from .plotting import hist_y, lower_limits_to_edges
+from toppy.tallies import import_csv
+from toppy.plotting import hist_y, lower_limits_to_edges
 
 def import_abs_dif_dvh(filename):
     return import_csv(filename, tallytype='DVH')
 
-def plot_abs_dif_dvh(filename, title):
+def get_abs_dvh_bins_and_vals(filename, scorer_name='TsMRCPScorer'):
     df = import_abs_dif_dvh(filename)
-    dose_bins = df['LowerLimit of TsMRCPScorer ( Gy )'].values
-    dose_bins = lower_limits_to_edges(dose_bins)
-    volumes = df['Value']
-    
+    bins = df['LowerLimit of {:s} ( Gy )'.format(scorer_name)].values
+    bins = lower_limits_to_edges(bins)
+    vals = df['Value'].values
+    return bins, vals
+
+def plot_abs_dif_dvh(filename, title):
+    bins, volumes = get_abs_dvh_bins_and_vals(filename)
 
     dDVH = volumes/np.sum(volumes)
     cDVH = np.cumsum(dDVH[::-1])[::-1]
