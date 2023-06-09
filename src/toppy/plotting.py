@@ -4,7 +4,7 @@ from matplotlib import colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import copy
 
-from .tallies import import_csv
+from toppy.tallies import import_csv
 
 def bin_enlarge(array, n):
     if len(array) % n : 

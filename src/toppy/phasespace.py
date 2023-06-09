@@ -4,8 +4,7 @@ import matplotlib as mpl
 from matplotlib import colors
 import os
 
-from ParticlePhaseSpace import DataLoaders
-from ParticlePhaseSpace import PhaseSpace
+from ParticlePhaseSpace import DataLoaders, PhaseSpace
 
 # https://www.python-graph-gallery.com/86-avoid-overlapping-in-scatterplot-with-2d-density
 # Acknowledgement to plotting in ParticlePhaseSpace:
