@@ -120,13 +120,37 @@ def plot_energy_spectra(df, particles, filename, nbins=100):
     
     fig.tight_layout()
     fig.savefig(filename + '.pdf', dpi=400)
+
+def get_phsp_with_KE(phsp_file):
+    phsp_obj = PhaseSpace(DataLoaders.Load_TopasData(phsp_file))
+    phsp_obj.fill.direction_cosines()
+    phsp_obj.fill.kinetic_E()
+    return phsp_obj
+
+def plot_3D_dist(phsp_file, figdir, dim_labels=['x [mm]','y [mm]','z [mm]']):
+    os.system('mkdir -p {:s}'.format(figdir))
+    phsp_obj = get_phsp_with_KE(phsp_file)
+    df = phsp_obj.ps_data
+
+    print(df)
+    print(df[dim_labels[0]].values)
+    print(df[dim_labels[1]].values)
+    print(df[dim_labels[2]].values)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(df[dim_labels[0]].values,
+               df[dim_labels[1]].values,
+               df[dim_labels[2]].values, marker='.', alpha=0.1)
+    ax.set_xlabel(dim_labels[0])
+    ax.set_ylabel(dim_labels[1])
+    ax.set_zlabel(dim_labels[2])
+    plt.show()
+
     
 def plot_dists(phsp_file, figdir):
     os.system('mkdir -p {:s}'.format(figdir))
     
-    phsp_obj = PhaseSpace(DataLoaders.Load_TopasData(phsp_file))
-    phsp_obj.fill.direction_cosines()
-    phsp_obj.fill.kinetic_E()
+    phsp_obj = get_phsp_with_KE(phsp_file)
 
     # Photon plotting
     df = phsp_obj.ps_data
