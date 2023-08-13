@@ -18,15 +18,19 @@ def import_csv(filename, tallytype='dose', dimensions=[]):
             header.append(line)
     # Get column values
     if tallytype == 'dose':
-        name, columns = header[-1].split(':')
-        columns = columns.strip().split()
-        name = name[2:-1]
+        if ':' in header[-1]:
+            name, columns = header[-1].split(':')
+            columns = columns.strip().split()
+            name = name[2:-1]
+        else:
+            columns = header[-1][2:].split(',')
+            columns = [c.strip() for c in columns]
+            name = ''
     elif tallytype == 'DVH':
         columns = header[-1].split(',')
         columns = [c.strip() for c in columns]
         name = 'DVH'
     columns = np.hstack([dimensions, columns])
-    print(columns)
     df = pd.read_csv(filename, names=columns, skiprows=len(header))
     df.attrs['scorer_name'] = name
     df.attrs['header'] = header
