@@ -4,7 +4,7 @@ import matplotlib as mpl
 from matplotlib import colors
 import os
 
-from ParticlePhaseSpace import DataLoaders, PhaseSpace
+from ParticlePhaseSpace import DataLoaders, DataExporters, PhaseSpace
 
 # https://www.python-graph-gallery.com/86-avoid-overlapping-in-scatterplot-with-2d-density
 # Acknowledgement to plotting in ParticlePhaseSpace:
@@ -15,6 +15,7 @@ pdg2particle = {11: 'electrons',
                 2212: 'protons',
                 22: 'gammas',
                 2112: 'neutrons',
+                1000070140: 'N14',
                 0: 'optical_photons'}
 particle2pdg = {v: k for k, v in pdg2particle.items()}
 
@@ -103,20 +104,26 @@ def plot_energy_spectra(df, particles, filename, nbins=100):
     fig = plt.figure(figsize = [8, 4])
 
     for i, particle in enumerate(particles):
+        figp = plt.figure(figsize=(5,3))
+        axp = figp.add_subplot(111)
         ax = fig.add_subplot(1, len(particles), i+1)
         pdg = particle2pdg[particle]
         dfpart = df[df['particle type [pdg_code]'] == pdg]
         nparts = len(dfpart)
         title = '{:s} Energy Distribution \n'.format(particle)
         title += '{:.1e} Particles \n'.format(nparts)
-        print(pdg)
-        print(dfpart.columns)
-        print(dfpart)
         energies = dfpart['Ek [MeV]']
         xmin = np.amin(energies)
         xmax = np.amax(energies)
+
         plot_hist_1d(ax, xmin, xmax, nbins, energies, 'Kinetic Energy [MeV]')
+        plot_hist_1d(axp, xmin, xmax, nbins, energies, 'Kinetic Energy [MeV]')
         ax.set_title(title)
+        axp.set_title(title)
+
+        figp.tight_layout()
+        figp.savefig(filename + '_' + particle + '.pdf', dpi=400)
+        plt.close(figp)
     
     fig.tight_layout()
     fig.savefig(filename + '.pdf', dpi=400)
@@ -174,7 +181,25 @@ def plot_dists(phsp_file, figdir):
     filename = figdir + 'energy_distributions'
     plot_energy_spectra(df, particles, filename)
 
-
+def translate_phasespace(folder, phspin, phspout, translation):
+    """
+    Translate the origin coordinates of all particles in the phasespace
+    """
+    phsp_obj = PhaseSpace(DataLoaders.Load_TopasData(folder + phspin))
+    phsp_obj.transform.translate(direction='x', 
+                                 distance=translation[0],
+                                 in_place=True)
+    phsp_obj.transform.translate(direction='y', 
+                                 distance=translation[1],
+                                 in_place=True)
+    phsp_obj.transform.translate(direction='z', 
+                                 distance=translation[2],
+                                 in_place=True)
+    DataExporters.Topas_Exporter(phsp_obj, output_location=folder, 
+                               output_name=phspout)
 
 if __name__=='__main__':
-    plot_dists(phsp_file, 'tests/')
+    # plot_dists(phsp_file, 'tests/')
+    folder = '/Users/isaacmeyer/research/murine_multiscale/small_animal_phasespaces/SARRP/configuration_phasespaces/brass_filter-True_ic-False_5mm_square/'
+    phspin = 'beam_backup.phsp'
+    translate_phasespace(folder, phspin, 'beam_origin.phsp', [0, 0, -235.108])
